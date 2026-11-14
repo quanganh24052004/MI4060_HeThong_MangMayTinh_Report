@@ -1,0 +1,19 @@
+\chapter*{Tóm tắt nội dung báo cáo}
+\addcontentsline{toc}{chapter}{\bfseries Tóm tắt nội dung báo cáo}
+
+Sự phát triển mạnh mẽ của công nghệ Internet of Things (IoT) đã thúc đẩy làn sóng phổ cập các thiết bị thông minh và hệ thống camera an ninh trong các hộ gia đình. Tuy nhiên, phần lớn các hạ tầng mạng gia đình hiện nay vẫn vận hành theo mô hình mạng phẳng, nơi toàn bộ máy tính cá nhân, điện thoại thông minh, cảm biến và camera giám sát đều cùng chia sẻ một miền quảng bá và kết nối chung qua một điểm truy cập không dây (AP). Kiến trúc truyền thống này bộc lộ hai rủi ro lớn: suy giảm hiệu năng do xung đột tần số và nghẽn băng thông khi camera truyền tải luồng video liên tục, và nguy cơ mất an toàn thông tin nghiêm trọng khi các thiết bị IoT giá rẻ tồn tại nhiều lỗ hổng bảo mật, dễ bị xâm nhập và lợi dụng làm bàn đạp tấn công leo thang sang các thiết bị cá nhân nhạy cảm trong mạng nội bộ.
+
+Báo cáo môn học MI4060 này nghiên cứu, thiết kế và triển khai giải pháp mạng phân đoạn nhằm tối ưu hóa hiệu năng và thiết lập cơ chế bảo mật phân vùng toàn diện cho hệ sinh thái thiết bị IoT và camera gia đình. Về mặt kiến trúc, hệ thống áp dụng kỹ thuật mạng cục bộ ảo (VLAN) và chia mạng con để phân tách độc lập ba vùng mạng chức năng: Vùng thiết bị tin cậy (VLAN 10) dành cho máy tính và điện thoại cá nhân; Vùng thiết bị IoT (VLAN 20) dành riêng cho camera an ninh và cảm biến; Vùng khách (VLAN 30) dành cho khách vãng lai. Về mặt tối ưu hóa hiệu năng, cơ chế quản lý chất lượng dịch vụ (QoS) được cấu hình trên router biên nhằm phân loại hàng đợi và ưu tiên băng thông cho các luồng video thời gian thực từ camera, hạn chế tối đa hiện tượng trễ và mất gói tin. Về mặt an ninh, hệ thống áp dụng tường lửa kiểm soát trạng thái kết hợp danh sách kiểm soát truy cập (ACL) theo nguyên tắc mặc định từ chối, cô lập hoàn toàn lưu lượng từ vùng IoT và vùng khách sang vùng tin cậy, đồng thời triển khai chuẩn mã hóa không dây WPA3-Personal.
+
+Kết quả thử nghiệm thực tế trên mô hình thử nghiệm cho thấy kiến trúc mạng đề xuất cải thiện rõ rệt chỉ số thời gian khứ hồi (RTT), duy trì thông lượng ổn định và giảm thiểu tỷ lệ mất gói tin cho luồng camera giám sát dưới tải lưu lượng cao. Đồng thời, các bài thử nghiệm quét cổng và mô phỏng xâm nhập chứng minh hệ thống cô lập triệt để các thiết bị IoT, ngăn chặn thành công các nguy cơ leo thang đặc quyền và rò rỉ dữ liệu cá nhân trong gia đình.
+
+\vspace{-3mm}
+\hspace{0.5\textwidth}
+\begin{minipage}{0.5\textwidth}
+	\noindent\begin{center}
+		\vspace{1cm}
+		\textit{Hà Nội, ngày 01 tháng 01 năm 2027} \\
+		Nhóm sinh viên thực hiện\\ \vspace{1.5cm}
+		\textbf{Nhóm 12}
+	\end{center}	
+\end{minipage}

@@ -1,0 +1,32 @@
+\chapter*{Kết luận}
+\addcontentsline{toc}{chapter}{\bfseries Kết luận}
+\setcounter{section}{0}
+\renewcommand*{\thesection}{\the\value{section}}
+
+\subsection*{Kết quả đạt được của đề tài} 
+
+Báo cáo môn học \textbf{Hệ thống và Mạng máy tính (MI4060)} với đề tài \textbf{"Nghiên cứu, thiết kế và triển khai hệ thống mạng phân đoạn nhằm tối ưu hiệu năng và bảo mật cho thiết bị IoT trong gia đình"} đã hoàn thành đầy đủ các mục tiêu đề ra theo đúng đề cương chi tiết đã được phê duyệt:
+\begin{itemize}
+    \item \textbf{Về mặt lý thuyết:} Đã tổng hợp và hệ thống hóa toàn diện cơ sở lý thuyết về hạ tầng mạng máy tính hộ gia đình, các chuẩn truyền thông không dây và giao thức truyền tin IoT (MQTT, HTTP, CoAP, RTSP); phân tích chuyên sâu các thách thức kỹ thuật về nghẽn băng thông, xung đột tần số vô tuyến và các nguy cơ mất an toàn thông tin (mạng botnet Mirai, rò rỉ dữ liệu camera giám sát); làm rõ nguyên lý hoạt động của kỹ thuật phân vùng VLAN (IEEE 802.1Q), chia mạng con, cơ chế quản lý chất lượng dịch vụ (QoS), tường lửa kiểm soát trạng thái với danh sách kiểm soát truy cập (ACL) và chuẩn bảo mật WPA3.
+    \item \textbf{Về mặt phân tích và thiết kế:} Đã tiến hành khảo sát thực tế cơ cấu thiết bị và lưu lượng mạng trong hộ gia đình tiêu biểu; xây dựng sơ đồ kiến trúc mạng phân tầng tối ưu với 3 phân vùng logic độc lập gồm: Vùng thiết bị tin cậy (VLAN 10), Vùng thiết bị IoT/Camera (VLAN 20) và Vùng khách (VLAN 30); thiết kế ma trận kiểm soát truy cập tường lửa liên VLAN theo nguyên tắc Mặc định từ chối và thiết lập chính sách hàng đợi QoS ưu tiên luồng dữ liệu thời gian thực của camera giám sát.
+    \item \textbf{Về mặt cài đặt và đánh giá thực nghiệm:} Đã xây dựng hoàn chỉnh mô hình thử nghiệm (testbed) trên nền tảng phần cứng router chạy hệ điều hành nguồn mở OpenWrt kết hợp Managed Switch và các nút mạng kiểm thử; đo đạc và chứng minh định lượng tính ưu việt của giải pháp: giảm độ trễ RTT tới $88\%$, duy trì thông lượng camera ổn định ở mức $5.9\text{ Mbps}$ và giảm tỷ lệ mất gói xuống chỉ còn $0.1\%$ khi đường truyền tải nền bị bão hòa; đồng thời kiểm chứng khả năng phòng vệ vững chắc trước các cuộc tấn công quét cổng do thám và tấn công đầu độc ARP.
+\end{itemize}
+
+\vspace{5mm}
+\subsection*{Kỹ năng và bài học thu nhận}
+\begin{itemize}
+    \item Nâng cao năng lực phân tích, thiết kế và quy hoạch không gian địa chỉ mạng máy tính (IP Addressing, Subnetting, VLSM) phù hợp với nhu cầu thực tiễn.
+    \item Thành thạo kỹ năng cấu hình và quản trị các thiết bị mạng: chuyển mạch VLAN, cấu hình đường trung kế Trunk 802.1Q, cấu hình giao diện mạng con và định tuyến liên VLAN trên router.
+    \item Nắm vững phương pháp thiết lập chính sách tường lửa bảo vệ hệ thống mạng (\texttt{iptables/nftables}) và kỹ thuật điều phối lưu lượng, hạn chế tắc nghẽn thông qua QoS.
+    \item Rèn luyện phương pháp luận nghiên cứu thực nghiệm khoa học: xây dựng kịch bản kiểm thử, sử dụng thành thạo các công cụ phân tích và đo kiểm mạng chuyên dụng như \texttt{iPerf3}, \texttt{Wireshark}, \texttt{ping} và \texttt{Nmap}.
+    \item Rèn luyện kỹ năng làm việc nhóm, tổng hợp tài liệu học thuật và chế bản báo cáo khoa học chuẩn mực bằng hệ thống soạn thảo \LaTeX.
+\end{itemize}
+
+\vspace{5mm}
+\subsection*{Hướng phát triển trong tương lai}
+\begin{itemize}
+    \item \textbf{Tích hợp hệ thống phát hiện và ngăn chặn xâm nhập (IDS/IPS):} Triển khai các mô-đun an ninh nhẹ như Suricata hoặc Snort trực tiếp trên router biên để phân tích sâu nội dung gói tin (Deep Packet Inspection), phát hiện và ngăn chặn kịp thời các hành vi bất thường từ thiết bị IoT.
+    \item \textbf{Ứng dụng Trí tuệ nhân tạo nhận dạng thiết bị tự động (Device Fingerprinting):} Phát triển mô hình máy học phân tích các đặc trưng gói tin tầng mạng và tầng giao vận để tự động nhận dạng chủng loại thiết bị mới gia nhập mạng và gán thẻ tự động vào đúng phân vùng VLAN phù hợp mà không cần can thiệp cấu hình thủ công.
+    \item \textbf{Tối ưu hóa chia sẻ đa phương tiện liên VLAN:} Tích hợp các giải pháp mDNS Proxy/Reflector và IGMP Snooping nhằm hỗ trợ mượt mà các giao thức giải trí gia đình như AirPlay, Google Cast và Chromecast qua lại giữa mạng thiết bị cá nhân và thiết bị nhà thông minh trong khi vẫn duy trì ranh giới bảo mật nghiêm ngặt.
+    \item \textbf{Xây dựng ứng dụng quản trị trực quan:} Phát triển giao diện quản lý trên ứng dụng di động cho phép chủ hộ gia đình dễ dàng giám sát lưu lượng tiêu thụ của từng thiết bị, bật/tắt quyền truy cập Internet và nhận cảnh báo an ninh tức thời.
+\end{itemize}

@@ -1,0 +1,127 @@
+%==================================
+\renewcommand{\thechapter}{\arabic{chapter}}
+\renewcommand{\thesection}{\arabic{chapter}.\arabic{section}}
+\newcommand{\eproof}{\hfill $\square$}
+\newcommand{\chm}{{\bfseries Chứng minh.}}
+\newenvironment{cm}{\chm}{\eproof}
+%===============================
+
+\theoremstyle{plain}
+\newtheorem{bd}{Bổ đề}[chapter]
+\providecommand*{\bdautorefname}{Bổ đề}
+\newtheorem{md}{Mệnh đề}[chapter]
+\providecommand*{\mdautorefname}{Mệnh đề}
+\newtheorem{hq}{Hệ quả}[chapter]
+\providecommand*{\hqautorefname}{Hệ quả}
+\newtheorem{dl}{\bfseries Định lý}[chapter]
+\providecommand*{\dlautorefname}{Định lý}
+\newtheorem{tc}{\bfseries Tính chất}[chapter]
+\providecommand*{\tcautorefname}{Tính chất}
+
+\newtheorem*{namedthm}{\namedthmname}
+\newcounter{namedthm}
+\makeatletter
+\newenvironment{named}[1]
+  {\def\namedthmname{#1}%
+   \refstepcounter{namedthm}%
+   \namedthm\def\@currentlabel{#1}}
+  {\endnamedthm}
+\makeatother
+
+\theoremstyle{definition}
+\newtheorem{dn}{Định nghĩa}[chapter]
+\providecommand*{\dnautorefname}{Định nghĩa}
+\newtheorem{bt}{Bài toán}[chapter]
+\providecommand*{\btautorefname}{Bài toán}
+\newtheorem{vd}{\bfseries Ví dụ}[chapter]
+\providecommand*{\vdautorefname}{Ví dụ}
+\newtheorem{algorithm}{\bfseries Thuật toán}[chapter]
+\providecommand*{\algorithmautorefname}{Thuật toán}
+\newtheorem{assumption}{\bfseries Giả thiết}[chapter]
+\providecommand*{\assumptionautorefname}{Giả thiết}
+
+\theoremstyle{remark}
+\newtheorem{kh}{ký hiệu}[chapter]
+\newtheorem{nx}{Nhận xét}[chapter]
+\newtheorem{ly}{Lưu ý}[chapter]
+
+\renewcommand{\thekh}{\textit{\thechapter.\arabic{kh}}}
+\renewcommand{\thenx}{\textit{\thechapter.\arabic{nx}}}
+\renewcommand{\thely}{\textit{\thechapter.\arabic{ly}}}
+
+\renewcommand{\baselinestretch}{1.5}
+
+% ==============================================================================
+% ĐỊNH DẠNG CĂN LỀ TRANG (PAGE MARGINS)
+% ==============================================================================
+% 1. Chế độ in 1 mặt (oneside):
+\setlength{\oddsidemargin}{0.3cm}     % Lề trái tính từ mốc 2.54cm (tổng ~ 2.84cm)
+%\setlength{\evensidemargin}{0.3cm}   % Dành cho 1 mặt (mặc định bằng oddsidemargin)
+
+% 2. Chế độ in 2 mặt (twoside) - Mở comment khi in 2 mặt để đảo lề đối xứng:
+%\setlength{\oddsidemargin}{0.96cm}    % Lề trang lẻ (lề trong/gáy = 3.5cm)
+%\setlength{\evensidemargin}{-0.54cm}  % Lề trang chẵn (lề trong/gáy = 3.5cm, lề ngoài = 2.0cm)
+
+\setlength{\topmargin}{-1cm}          % Lề trên tính từ điểm cách mép giấy 2.54cm
+\setlength{\headsep}{0.5cm}           % Khoảng cách từ Headerline tới Khối chữ
+\textwidth=15.5cm
+\textheight=24.5cm
+\renewcommand{\bibname}{Tài liệu tham khảo}
+\renewcommand{\large}{\fontsize{14pt}{14pt}\selectfont}
+\renewcommand{\Large}{\fontsize{16pt}{16pt}\selectfont}
+\renewcommand{\LARGE}{\fontsize{15pt}{15pt}\selectfont}
+\renewcommand{\th}{\fontsize{18pt}{18pt}\selectfont}
+
+\usepackage{fancyhdr}
+\setlength{\headheight}{15pt}
+\addtolength{\topmargin}{-3pt}
+
+% ==============================================================================
+% CẤU HÌNH HEADER / FOOTER
+% ==============================================================================
+% --- 1. Cấu hình 1 mặt (oneside): Số trang đặt chính giữa header ---
+\fancyhf{}
+\fancyhead[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\pagestyle{fancy}
+
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyhead[C]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+}
+
+\fancypagestyle{myheadings}{%
+  \fancyhf{}%
+  \fancyhead[C]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+}
+
+% --- 2. Cấu hình 2 mặt (twoside): Số trang so le ngoài mép - Mở comment khi in 2 mặt ---
+%\fancyhf{}
+%\fancyhead[RO,LE]{\thepage}          % Số trang: mép phải trang lẻ, mép trái trang chẵn
+%\fancyhead[RE]{\leftmark}            % Trang chẵn hiển thị tên chương bên phải
+%\fancyhead[LO]{\rightmark}           % Trang lẻ hiển thị tên mục bên trái
+%\renewcommand{\headrulewidth}{0.4pt} % Kẻ đường ngang header
+%\pagestyle{fancy}
+%
+%\fancypagestyle{plain}{%
+%  \fancyhf{}%
+%  \fancyhead[RO,LE]{\thepage}%
+%  \renewcommand{\headrulewidth}{0pt}%
+%}
+%
+%\fancypagestyle{myheadings}{%
+%  \fancyhf{}%
+%  \fancyhead[RO,LE]{\thepage}%
+%  \renewcommand{\headrulewidth}{0pt}%
+%}
+\newenvironment{mproof}{\paragraph{Chứng minh:}}{\hfill$\square$}
+\newenvironment{myproof}[2] {\paragraph{Proof of {#1} {#2} :}}{\hfill$\square$}
+\DeclarePairedDelimiter{\pro}{\langle}{\rangle}
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+\DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
+\usepackage{xpatch}
+\makeatletter
+\AtBeginDocument{\xpatchcmd{\@thm}{\thm@headpunct{.}}{\thm@headpunct{}}{}{}}
+\makeatother

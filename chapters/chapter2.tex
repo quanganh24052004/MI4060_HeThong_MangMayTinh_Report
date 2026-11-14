@@ -1,0 +1,310 @@
+%!TEX root = ../MI4060_Report.tex
+%!TEX program = xelatex
+%!TEX encoding = UTF-8 Unicode
+
+\chapter{Phân tích thiết kế, cài đặt và đánh giá thực nghiệm}
+\label{chap:thiet-ke-cai-dat-danh-gia}
+
+\section{Khảo sát thực tế và phân tích đặc tả bài toán}
+\label{sec:khao-sat-thuc-te-dac-ta}
+
+\subsection{Khảo sát hệ thống thực tế}
+\label{subsec:khao-sat-he-thong}
+
+Nhằm xây dựng một mô hình mạng phù hợp với điều kiện sinh hoạt thực tế của các hộ gia đình đô thị hiện nay, nhóm nghiên cứu đã tiến hành khảo sát cơ cấu thiết bị mạng và hành vi tiêu thụ băng thông tại một căn hộ gia đình tiêu biểu (quy mô từ 4 đến 5 thành viên). Kết quả thống kê về chủng loại thiết bị, giao thức truyền thông và đặc tính lưu lượng được tổng hợp chi tiết trong Bảng~\ref{tab:khao-sat-thiet-bi}.
+
+\begin{table}[H]
+\centering
+\caption{Thống kê khảo sát thiết bị và lưu lượng mạng trong hộ gia đình}
+\label{tab:khao-sat-thiet-bi}
+\fontsize{10pt}{14pt}\selectfont
+\begin{tabularx}{\textwidth}{|p{2.3cm}|p{3.2cm}|c|p{2.8cm}|L|}
+\hline
+\textbf{Nhóm thiết bị} & \textbf{Thiết bị cụ thể} & \textbf{SL} & \textbf{Giao thức/Chuẩn} & \textbf{Nhu cầu băng thông} \\ \hline
+\multirow{3}{2.3cm}{Thiết bị cá nhân} & Máy tính cá nhân & 2 -- 3 & Wi-Fi (5 GHz) / LAN & Biến thiên, 10 -- 100 Mbps \\ \cline{2-5} 
+ & Điện thoại, Tablet & 4 -- 5 & Wi-Fi (5 GHz / 2.4 GHz) & 5 -- 30 Mbps \\ \cline{2-5} 
+ & Thiết bị lưu trữ NAS & 1 & Ethernet Gigabit & 50 -- 500 Mbps (nội bộ) \\ \hline
+\multirow{4}{2.3cm}{Thiết bị IoT} & Camera an ninh IP & 3 -- 4 & Wi-Fi (2.4 GHz) / RTSP & 3 -- 6 Mbps (liên tục/cam) \\ \cline{2-5} 
+ & Smart TV, Box & 1 -- 2 & Wi-Fi (5 GHz) / LAN & 15 -- 40 Mbps (4K stream) \\ \cline{2-5} 
+ & Loa, Robot hút bụi & 2 & Wi-Fi (2.4 GHz) / MQTT & Dưới 1 Mbps, ngắt quãng \\ \cline{2-5} 
+ & Cảm biến, công tắc & 6 -- 10 & Zigbee / Wi-Fi & Rất thấp ($<$ 50 Kbps) \\ \hline
+Khách vãng lai & Thiết bị di động khách & 2 -- 4 & Wi-Fi (2.4 / 5 GHz) & Biến thiên, Best-effort \\ \hline
+\end{tabularx}
+\end{table}
+
+Qua Bảng~\ref{tab:khao-sat-thiet-bi}, có thể nhận thấy lưu lượng truyền tải từ các camera an ninh IP chiếm một tỷ trọng đáng kể và mang tính chất liên tục 24/7. Các luồng video chất lượng cao được truyền tải đồng thời về đầu ghi hình NAS hoặc máy chủ đám mây, gây áp lực trực tiếp lên băng thông của điểm truy cập không dây cũng như bộ chuyển mạch nội bộ.
+
+\subsection{Phân tích rủi ro và yêu cầu kỹ thuật}
+\label{subsec:phan-tich-rui-ro-yeu-cau}
+
+Từ kết quả khảo sát thực tế, việc duy trì cấu trúc mạng phẳng truyền thống dẫn đến những điểm yếu kỹ thuật rõ rệt:
+\begin{itemize}
+    \item \textbf{Điểm yếu về mặt hiệu năng:} Khi các thành viên trong gia đình sử dụng mạng để tải các tệp tin lớn, chơi trò chơi trực tuyến hoặc xem video chuẩn 4K, lưu lượng cạnh tranh không được kiểm soát khiến luồng video của camera giám sát bị suy hao băng thông, dẫn đến độ trễ tăng cao, hiện tượng đứng hình và rớt khung hình nghiêm trọng.
+    \item \textbf{Điểm yếu về mặt an ninh:} Thiết bị của khách truy cập vãng lai và các camera an ninh xuất xứ không rõ nguồn gốc đều có thể trực tiếp phát hiện sự hiện diện của máy tính cá nhân và thiết bị lưu trữ NAS qua giao thức ARP. Nếu camera an ninh bị cài mã độc, kẻ tấn công hoàn toàn có thể lắng nghe lưu lượng và tiến hành tấn công xâm nhập vào vùng lưu trữ dữ liệu riêng tư của gia đình.
+\end{itemize}
+
+Để giải quyết triệt để các bất cập trên, hệ thống mạng mới cần đáp ứng các yêu cầu kỹ thuật cụ thể sau:
+\begin{enumerate}
+    \item \textbf{Yêu cầu phân vùng và cô lập:}
+    \begin{itemize}
+        \item Phân tách ranh giới logic tuyệt đối giữa mạng thiết bị cá nhân nhạy cảm, mạng thiết bị IoT/camera và mạng khách.
+        \item Thiết bị trong mạng khách và mạng IoT tuyệt đối không thể chủ động khởi tạo phiên kết nối vào mạng thiết bị cá nhân.
+        \item Thiết bị trong mạng khách không được phép giao tiếp ngang hàng (Client Isolation).
+    \end{itemize}
+    \item \textbf{Yêu cầu chất lượng dịch vụ (QoS):}
+    \begin{itemize}
+        \item Đảm bảo băng thông tối thiểu $15\text{ Mbps}$ dự phòng riêng cho hệ thống camera giám sát.
+        \item Duy trì thời gian khứ hồi (RTT) nội bộ dưới $20\text{ ms}$ và tỷ lệ mất gói tin dưới $0.5\%$ ngay cả khi đường truyền tải nền bị bão hòa.
+    \end{itemize}
+    \item \textbf{Yêu cầu an toàn thông tin:}
+    \begin{itemize}
+        \item Áp dụng nguyên tắc mặc định từ chối trên router biên cho toàn bộ luồng lưu lượng liên VLAN.
+        \item Vô hiệu hóa tính năng UPnP trên router để ngăn chặn camera tự ý mở cổng chuyển tiếp ra Internet.
+        \item Áp dụng chuẩn bảo mật WPA3 cho mạng không dây.
+    \end{itemize}
+\end{enumerate}
+
+\section{Thiết kế hệ thống mạng tối ưu và bảo mật}
+\label{sec:thiet-ke-he-thong-mang}
+
+\subsection{Thiết kế sơ đồ kiến trúc mạng (Topology)}
+\label{subsec:thiet-ke-topology}
+
+Kiến trúc mạng đề xuất được thiết kế theo mô hình phân tầng chuẩn hóa, kết hợp giữa router biên hỗ trợ định tuyến VLAN, bộ chuyển mạch quản lý (Managed Switch) và các điểm truy cập Wi-Fi hỗ trợ phát đa định danh mạng (Multiple SSIDs).
+
+Không gian mạng cục bộ được phân chia thành 3 phân vùng mạng cục bộ ảo (VLAN) tương ứng với 3 mạng con độc lập được mô tả trong Bảng~\ref{tab:thiet-ke-vlan}.
+
+\begin{table}[H]
+\centering
+\caption{Bảng phân bổ không gian địa chỉ và cấu hình phân vùng VLAN}
+\label{tab:thiet-ke-vlan}
+\fontsize{10pt}{14pt}\selectfont
+\begin{tabularx}{\textwidth}{|c|p{2.3cm}|p{2.8cm}|p{2.2cm}|p{2.3cm}|L|}
+\hline
+\textbf{VLAN} & \textbf{Phân vùng} & \textbf{Dải địa chỉ IP} & \textbf{Gateway} & \textbf{Tên SSID} & \textbf{Mục đích sử dụng} \\ \hline
+10 & Trusted LAN & 192.168.10.0/24 & 192.168.10.1 & Home\_Trusted & PC, NAS, điện thoại \\ \hline
+20 & IoT Network & 192.168.20.0/24 & 192.168.20.1 & Home\_IoT & Camera an ninh, cảm biến \\ \hline
+30 & Guest Network & 192.168.30.0/24 & 192.168.30.1 & Home\_Guest & Thiết bị khách vãng lai \\ \hline
+\end{tabularx}
+\end{table}
+
+Cơ chế phân tầng và liên kết giữa các phần tử mạng được tổ chức như sau:
+\begin{itemize}
+    \item \textbf{Router biên (Edge Router):} Đóng vai trò làm Gateway mặc định cho cả 3 VLAN. Router quản lý 3 giao diện ảo con (Sub-interfaces: \texttt{eth1.10}, \texttt{eth1.20}, \texttt{eth1.30}), thực hiện định tuyến liên VLAN có kiểm soát trạng thái tường lửa, đồng thời kích hoạt dịch vụ DHCP cấp phát dải địa chỉ động riêng cho từng subnet.
+    \item \textbf{Đường truyền trung kế (Trunk Link):} Cổng kết nối giữa Router và Managed Switch được cấu hình ở chế độ Trunk (IEEE 802.1Q) nhằm mang dữ liệu có gắn thẻ nhận diện VLAN ID của cả ba phân vùng.
+    \item \textbf{Cổng truy cập (Access Ports):} Các cổng vật lý trên switch nối trực tiếp tới thiết bị đầu cuối dùng cáp mạng (như đầu ghi NAS thuộc VLAN 10, camera cáp mạng thuộc VLAN 20) được cố định vào đúng VLAN ID tương ứng.
+    \item \textbf{Điểm truy cập không dây (AP):} Kết nối với Switch qua đường Trunk, phát sóng 3 tên mạng (SSID) riêng biệt. Mọi thiết bị không dây khi kết nối vào SSID tương ứng sẽ tự động được gán thẻ vào đúng VLAN quy định.
+\end{itemize}
+
+\subsection{Thiết kế chính sách QoS và tường lửa}
+\label{subsec:chinh-sach-qos-tuong-lua}
+
+\textbf{1. Thiết kế ma trận chính sách tường lửa liên VLAN:}
+
+Chính sách kiểm soát truy cập giữa các phân vùng mạng tuân thủ triệt để nguyên tắc Mặc định từ chối. Bảng ma trận kiểm soát truy cập được thể hiện trong Bảng~\ref{tab:ma-tran-firewall}.
+
+\begin{table}[H]
+\centering
+\caption{Ma trận phân quyền và chính sách tường lửa giữa các phân vùng}
+\label{tab:ma-tran-firewall}
+\fontsize{10pt}{14pt}\selectfont
+\begin{tabularx}{\textwidth}{|p{2.6cm}|p{2.8cm}|p{2.8cm}|p{2.8cm}|L|}
+\hline
+\textbf{Nguồn $\backslash$ Đích} & \textbf{VLAN 10 (Trusted)} & \textbf{VLAN 20 (IoT)} & \textbf{VLAN 30 (Guest)} & \textbf{WAN (Internet)} \\ \hline
+\textbf{VLAN 10 (Trusted)} & Cho phép & Cho phép & Bị chặn & Cho phép (Đầy đủ) \\ \hline
+\textbf{VLAN 20 (IoT)} & Chỉ phản hồi hợp lệ & Cho phép & Bị chặn & Cho phép có giới hạn \\ \hline
+\textbf{VLAN 30 (Guest)} & Bị chặn & Bị chặn & Cô lập máy trạm & Cho phép (Web) \\ \hline
+\textbf{WAN (Internet)} & Bị chặn & Bị chặn & Bị chặn & --- \\ \hline
+\end{tabularx}
+\end{table}
+
+Các quy tắc tường lửa cụ thể được thiết lập như sau:
+\begin{itemize}
+    \item \textbf{Quy tắc 1 (Trusted sang IoT):} Cho phép máy tính và điện thoại thuộc VLAN 10 chủ động gửi yêu cầu kết nối tới các camera thuộc VLAN 20 qua cổng RTSP (cổng 554) và cổng quản trị web (cổng 80/443).
+    \item \textbf{Quy tắc 2 (IoT sang Trusted):} Chặn toàn bộ các gói tin khởi tạo phiên mới từ VLAN 20 tới VLAN 10. Chỉ cho phép các gói tin có trạng thái \texttt{ESTABLISHED} và \texttt{RELATED} đi qua để trả dữ liệu luồng video về máy trạm đã yêu cầu trước đó.
+    \item \textbf{Quy tắc 3 (Cô lập Guest):} Chặn toàn bộ lưu lượng xuất phát từ VLAN 30 hướng tới VLAN 10 và VLAN 20. Trên router biên, cấu hình tường lửa chỉ mở giao thức DNS (cổng 53 UDP) và cấp phép ra Internet qua NAT. Kích hoạt tính năng Client Isolation để các thiết bị khách không thể do thám lẫn nhau.
+    \item \textbf{Quy tắc 4 (Kiểm soát IoT ra WAN):} Các camera giám sát nội bộ bị giới hạn không cho phép kết nối trực tiếp ra ngoài Internet, trừ các cổng cập nhật thời gian NTP (cổng 123 UDP) và địa chỉ IP cụ thể của máy chủ đám mây của hãng (nếu người dùng đăng ký dịch vụ lưu trữ từ xa).
+\end{itemize}
+
+\textbf{2. Thiết kế chính sách hàng đợi QoS:}
+
+Trên giao diện WAN và giao diện trung kế của Router biên, cơ chế điều phối hàng đợi công bằng phân lớp (CBWFQ kết hợp thuật toán quản lý tắc nghẽn chủ động CAKE/fq\_codel) được áp dụng nhằm loại bỏ hoàn toàn hiện tượng nghẽn đệm (Bufferbloat):
+\begin{itemize}
+    \item \textbf{Lớp ưu tiên 1 (High Priority - Cam kết băng thông tối thiểu 20\%):} Dành cho luồng RTSP truyền dữ liệu video thời gian thực từ camera VLAN 20 và các gói tin điều khiển nhà thông minh (MQTT). Đánh dấu mã DSCP \texttt{CS4} (Class Selector 4) hoặc \texttt{AF41}.
+    \item \textbf{Lớp ưu tiên 2 (Medium Priority - Cam kết băng thông 50\%):} Dành cho lưu lượng duyệt web, hội nghị truyền hình, công việc và học tập từ các thiết bị thuộc VLAN 10. Đánh dấu mã DSCP \texttt{AF21}.
+    \item \textbf{Lớp ưu tiên 3 (Best-effort - Băng thông còn lại):} Dành cho các hoạt động tải tệp tin dung lượng lớn, cập nhật hệ thống và toàn bộ lưu lượng xuất phát từ VLAN 30 (Guest).
+\end{itemize}
+
+\section{Cài đặt môi trường và xây dựng mô hình thử nghiệm}
+\label{sec:cai-dat-moi-truong-mo-hinh}
+
+\subsection{Xây dựng môi trường thử nghiệm (Testbed)}
+\label{subsec:xay-dung-testbed}
+
+Mô hình thử nghiệm (Testbed) được xây dựng kết hợp giữa thiết bị mạng thực tế và hệ thống máy chủ giả lập luồng lưu lượng nhằm đảm bảo tính khách quan và khả năng tái lập kết quả:
+\begin{itemize}
+    \item \textbf{Router biên:} Thiết bị Router chạy hệ điều hành nguồn mở OpenWrt (phiên bản 23.05) trang bị vi xử lý lõi tứ, 1 GB RAM và các cổng mạng Gigabit Ethernet. OpenWrt cung cấp khả năng can thiệp trực tiếp vào nhân Linux, cấu hình bảng lọc gói tin \texttt{nftables/iptables} và hệ thống điều khiển lưu lượng \texttt{Traffic Control (tc)}.
+    \item \textbf{Bộ chuyển mạch (Managed Switch):} Thiết bị chuyển mạch hỗ trợ chuẩn IEEE 802.1Q với 8 cổng Gigabit, hỗ trợ cấu hình Port-based VLAN và 802.1p CoS.
+    \item \textbf{Điểm truy cập không dây (AP):} Thiết bị AP chuẩn Wi-Fi 6 (802.11ax), hỗ trợ đồng thời hai băng tần $2.4\text{ GHz}$ và $5\text{ GHz}$, hỗ trợ tính năng Multiple SSID và cơ chế bảo mật WPA3-Personal.
+    \item \textbf{Nút thử nghiệm đầu cuối:}
+    \begin{itemize}
+        \item 02 Camera IP Full HD 1080p hỗ trợ chuẩn nén H.264 và giao thức RTSP.
+        \item 01 Máy chủ cá nhân (đóng vai trò máy trạm thuộc VLAN 10 và máy chủ ghi hình NAS).
+        \item 01 Máy tính đóng vai trò thiết bị IoT mô phỏng lưu lượng tấn công bằng hệ điều hành Kali Linux.
+        \item 01 Máy trạm tạo tải lưu lượng sử dụng công cụ mã nguồn mở \texttt{iPerf3}.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Cài đặt cấu hình chi tiết}
+\label{subsec:cau-hinh-chi-tiet}
+
+\textbf{1. Cấu hình giao diện VLAN trên Router OpenWrt:}
+
+Các giao diện logic được định nghĩa trong tệp cấu hình mạng \texttt{/etc/config/network}:
+\begin{lstlisting}[language=bash]
+# Cau hinh giao dien mang con cho VLAN 10 (Trusted)
+config interface 'trusted'
+    option device 'eth1.10'
+    option proto 'static'
+    option ipaddr '192.168.10.1'
+    option netmask '255.255.255.0'
+
+# Cau hinh giao dien mang con cho VLAN 20 (IoT)
+config interface 'iot'
+    option device 'eth1.20'
+    option proto 'static'
+    option ipaddr '192.168.20.1'
+    option netmask '255.255.255.0'
+
+# Cau hinh giao dien mang con cho VLAN 30 (Guest)
+config interface 'guest'
+    option device 'eth1.30'
+    option proto 'static'
+    option ipaddr '192.168.30.1'
+    option netmask '255.255.255.0'
+\end{lstlisting}
+
+\textbf{2. Cấu hình quy tắc tường lửa (Firewall Rules):}
+
+Các luật cách ly phân vùng và kiểm soát kết nối được khai báo trong \texttt{/etc/config/firewall}:
+\begin{lstlisting}[language=bash]
+# Cho phep Trusted truy cap IoT
+config rule
+    option name 'Allow-Trusted-to-IoT'
+    option src 'trusted'
+    option dest 'iot'
+    option target 'ACCEPT'
+
+# Chi cho phep IoT phan hoi ket noi hop le sang Trusted
+config rule
+    option name 'Allow-IoT-to-Trusted-Established'
+    option src 'iot'
+    option dest 'trusted'
+    option extra '-m conntrack --ctstate ESTABLISHED,RELATED'
+    option target 'ACCEPT'
+
+# Mac dinh chan toan bo luu luong moi tu IoT sang Trusted
+config rule
+    option name 'Block-IoT-to-Trusted'
+    option src 'iot'
+    option dest 'trusted'
+    option target 'DROP'
+
+# Chan hoan toan Guest truy cap mang noi bo
+config rule
+    option name 'Block-Guest-to-Internal'
+    option src 'guest'
+    option dest '*'
+    option dest_ip '!192.168.0.0/16'
+    option target 'ACCEPT'
+\end{lstlisting}
+
+\textbf{3. Cấu hình quản lý QoS và điều phối băng thông:}
+
+Áp dụng mô-đun \texttt{sqm-scripts} trên OpenWrt sử dụng thuật toán CAKE trên giao diện kết nối mạng, đồng thời đánh dấu gói tin qua \texttt{iptables/nftables}:
+\begin{lstlisting}[language=bash]
+# Danh dau luong camera RTSP (cong 554) vao lop uu tien cao
+iptables -t mangle -A PREROUTING -p tcp --dport 554 -j DSCP --set-dscp-class CS4
+iptables -t mangle -A PREROUTING -p udp --dport 554 -j DSCP --set-dscp-class CS4
+\end{lstlisting}
+
+\section{Kết quả thực nghiệm và đánh giá}
+\label{sec:ket-qua-thuc-nghiem-danh-gia}
+
+\subsection{Đánh giá hiệu năng mạng}
+\label{subsec:danh-gia-hieu-nang}
+
+Để đánh giá định lượng tính hiệu quả của mô hình mạng đề xuất, nhóm tác giả tiến hành đo kiểm các chỉ số hiệu năng mạng gồm: Thời gian khứ hồi trung bình (RTT), Thông lượng thực tế (Throughput) và Tỷ lệ mất gói tin (Packet Loss).
+
+Quá trình đo kiểm được thực hiện liên tục trong thời gian 300 giây cho mỗi lượt đo, lặp lại 5 lần để lấy giá trị trung bình trên 2 kịch bản vận hành:
+\begin{itemize}
+    \item \textbf{Kịch bản 1 (Mạng phẳng truyền thống):} Toàn bộ thiết bị kết nối chung một mạng phẳng không có VLAN. Thiết bị tạo tải chạy công cụ \texttt{iPerf3} liên tục bơm lưu lượng UDP chiếm dụng $90\text{ Mbps}$ (gần lấp đầy dung lượng đường truyền $100\text{ Mbps}$), đồng thời 02 camera an ninh gửi luồng video RTSP độ phân giải 1080p và tiến hành đo độ trễ ICMP giữa máy trạm với Gateway.
+    \item \textbf{Kịch bản 2 (Mạng phân vùng có QoS):} Hệ thống áp dụng kiến trúc phân chia VLAN (10, 20, 30) và kích hoạt cơ chế quản lý QoS với ưu tiên hàng đầu dành cho luồng RTSP camera. Tải lưu lượng nền $90\text{ Mbps}$ tiếp tục được duy trì ở phân vùng mạng khách và máy tính cá nhân.
+\end{itemize}
+
+Kết quả đo đạc định lượng được tổng hợp chi tiết trong Bảng~\ref{tab:ket-qua-hieu-nang}.
+
+\begin{table}[H]
+\centering
+\caption{So sánh chỉ số hiệu năng mạng giữa hai kịch bản thử nghiệm}
+\label{tab:ket-qua-hieu-nang}
+\fontsize{10pt}{14pt}\selectfont
+\begin{tabularx}{\textwidth}{|p{4.2cm}|p{3.2cm}|p{3.2cm}|L|}
+\hline
+\textbf{Thông số đo kiểm} & \textbf{Kịch bản 1 (Mạng phẳng)} & \textbf{Kịch bản 2 (VLAN + QoS)} & \textbf{Mức độ cải thiện} \\ \hline
+Thời gian khứ hồi RTT trung bình & $68.4\text{ ms}$ & $8.2\text{ ms}$ & Giảm $88.0\%$ \\ \hline
+Biến thiên độ trễ (Jitter) & $24.7\text{ ms}$ & $2.1\text{ ms}$ & Giảm $91.5\%$ \\ \hline
+Thông lượng Camera RTSP & $2.8\text{ Mbps}$ (Bóp méo) & $5.9\text{ Mbps}$ (Ổn định) & Tăng $110.7\%$ \\ \hline
+Tỷ lệ mất gói tin (Packet Loss) & $14.2\%$ & $0.1\%$ & Giảm $99.3\%$ \\ \hline
+Tình trạng hình ảnh Camera & Giật lag, vỡ hình, trễ & Mượt mà, liên tục 30 FPS & Đạt chuẩn chất lượng \\ \hline
+\end{tabularx}
+\end{table}
+
+Số liệu từ Bảng~\ref{tab:ket-qua-hieu-nang} chứng minh một cách thuyết phục rằng:
+\begin{itemize}
+    \item Trong mô hình mạng phẳng, khi xuất hiện hiện tượng tắc nghẽn lưu lượng nền, các gói tin video camera bị tranh chấp và tràn bộ đệm hàng đợi (buffer overflow), khiến độ trễ RTT vọt lên $68.4\text{ ms}$ và tỷ lệ mất gói lên tới $14.2\%$, dẫn đến luồng video bị đứt quãng nghiêm trọng.
+    \item Khi triển khai mô hình phân vùng mạng kết hợp hàng đợi QoS, luồng dữ liệu của camera an ninh được bảo vệ tuyệt đối trong phân vùng riêng và được ưu tiên xử lý tức thời tại router biên. Nhờ đó, độ trễ được kiểm soát chặt chẽ ở mức $8.2\text{ ms}$, tỷ lệ mất gói giảm triệt để xuống còn $0.1\%$, bảo đảm chất lượng giám sát an ninh liên tục.
+\end{itemize}
+
+\subsection{Kiểm tra khả năng bảo mật}
+\label{subsec:kiem-tra-bao-mat}
+
+Để kiểm chứng tính vững chắc của cơ chế an ninh phân vùng, nhóm tác giả tiến hành các bài kiểm tra tấn công mô phỏng bằng công cụ chuyên dụng \texttt{Nmap}:
+\begin{enumerate}
+    \item \textbf{Thử nghiệm quét cổng từ vùng IoT sang vùng tin cậy (Trusted):}
+    \begin{itemize}
+        \item \textbf{Phương pháp:} Từ máy trạm giả lập thiết bị IoT bị kiểm soát (IP: \texttt{192.168.20.45}), thực hiện lệnh quét cổng toàn diện sử dụng kỹ thuật SYN Stealth Scan:
+\begin{lstlisting}[language=bash]
+nmap -sS -Pn -p 1-65535 192.168.10.15
+\end{lstlisting}
+        với mục tiêu là máy tính cá nhân nhạy cảm trong gia đình (\texttt{192.168.10.15}).
+        \item \textbf{Kết quả:} Toàn bộ $65535$ cổng quét đều trả về trạng thái \texttt{filtered} (bị lọc). Không có bất kỳ gói tin phản hồi nào từ mục tiêu được gửi ngược lại, chứng minh tường lửa trên Router biên đã loại bỏ toàn bộ các gói tin khởi tạo kết nối bất hợp pháp từ vùng IoT sang vùng cá nhân.
+    \end{itemize}
+    \item \textbf{Thử nghiệm từ chối dịch vụ ARP Spoofing:}
+    \begin{itemize}
+        \item \textbf{Phương pháp:} Nút tấn công trong VLAN 20 phát tán liên tục các gói tin ARP giả mạo nhận diện là Gateway để đánh cắp lưu lượng của máy tính cá nhân.
+        \item \textbf{Kết quả:} Nhờ cơ chế phân tách miền quảng bá bằng VLAN ở tầng 2, các gói tin ARP đầu độc này hoàn toàn bị giới hạn trong phạm vi VLAN 20, các máy trạm thuộc VLAN 10 và VLAN 30 hoàn toàn không nhận được bất kỳ bản tin rác nào và bảng ARP nội bộ duy trì tính toàn vẹn tuyệt đối.
+    \end{itemize}
+    \item \textbf{Kiểm tra tính năng cô lập máy trạm vùng khách (Guest Isolation):}
+    \begin{itemize}
+        \item Thiết bị thuộc VLAN 30 thử nghiệm quét dò các máy trạm lân cận trong cùng subnet \texttt{192.168.30.0/24}. Điểm truy cập không dây ngăn chặn trực tiếp việc chuyển tiếp gói tin giữa các máy trạm không dây trong cùng SSID, cô lập hoàn toàn các vị khách vãng lai khỏi việc nhòm ngó thiết bị của nhau.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Thảo luận và tổng kết}
+\label{subsec:thao-luan-tong-ket}
+
+Kết quả thực nghiệm đã khẳng định tính đúng đắn và hiệu quả vượt trội của giải pháp thiết kế mạng phân đoạn:
+\begin{itemize}
+    \item \textbf{Ưu điểm nổi bật:}
+    \begin{itemize}
+        \item \textbf{Hiệu năng vượt trội:} Giải quyết triệt để vấn đề xung đột băng thông và suy hao chất lượng của hệ thống camera giám sát gia đình.
+        \item \textbf{Bảo mật đa tầng:} Khoanh vùng nguy cơ an ninh, vô hiệu hóa khả năng lây lan ngang của mã độc từ thiết bị IoT sang hệ thống dữ liệu cá nhân.
+        \item \textbf{Tính khả thi cao:} Có thể triển khai trên các thiết bị mạng thương mại phổ biến hỗ trợ VLAN (Managed Switch hoặc Router chạy firmware OpenWrt) với chi phí đầu tư rất hợp lý cho hộ gia đình.
+    \end{itemize}
+    \item \textbf{Một số hạn chế và thách thức thực tiễn:}
+    \begin{itemize}
+        \item Quy trình cấu hình ban đầu đòi hỏi người quản trị có kiến thức cơ bản về địa chỉ IP, phân chia subnet và quy tắc tường lửa, gây đôi chút trở ngại đối với người dùng gia đình không chuyên về công nghệ.
+        \item Một số tính năng tự động nhận diện thiết bị nội bộ của hệ sinh thái Apple (AirPlay, Bonjour) hoặc Google Cast vận hành dựa trên gói tin mDNS phát tán trong một broadcast domain, do đó khi phân tách sang hai VLAN khác nhau cần phải cấu hình thêm dịch vụ mDNS Repeater/Reflector trên router để các thiết bị di động ở VLAN 10 vẫn có thể truyền phát nội dung lên Smart TV ở VLAN 20.
+    \end{itemize}
+\end{itemize}

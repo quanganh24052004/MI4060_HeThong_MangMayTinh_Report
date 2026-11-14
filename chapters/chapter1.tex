@@ -1,0 +1,138 @@
+%!TEX root = ../MI4060_Report.tex
+%!TEX program = xelatex
+%!TEX encoding = UTF-8 Unicode
+
+\chapter{Cơ sở lý thuyết}
+\label{chap:co-so-ly-thuyet}
+
+\section{Tổng quan về hệ sinh thái IoT gia đình và hạ tầng mạng}
+\label{sec:tong-quan-iot-va-ha-tang}
+
+Trong những năm gần đây, sự bùng nổ của các thiết bị thông minh đã làm thay đổi sâu sắc cấu trúc sinh hoạt của hộ gia đình hiện đại. Mạng gia đình không còn đơn thuần phục vụ nhu cầu kết nối máy tính cá nhân để duyệt web hay gửi thư điện tử, mà đã chuyển mình thành một trung tâm điều phối phức tạp kết nối hàng chục đến hàng trăm thiết bị thuộc hệ sinh thái IoT~\cite{alfuqaha2015internet}.
+
+\subsection{Kiến trúc mạng gia đình truyền thống}
+\label{subsec:mang-gia-dinh-truyen-thong}
+
+Kiến trúc mạng gia đình truyền thống chủ yếu được xây dựng dựa trên mô hình \textbf{mạng phẳng}. Trong mô hình này, nhà cung cấp dịch vụ Internet (ISP) cung cấp một thiết bị đầu cuối tích hợp (thường là modem kiêm router và điểm truy cập không dây -- AP). Toàn bộ các thiết bị trong gia đình -- bao gồm máy tính xách tay cá nhân, điện thoại thông minh, hệ thống lưu trữ gắn mạng (NAS), camera an ninh giám sát, bóng đèn thông minh, ổ cắm điều khiển từ xa và các cảm biến môi trường -- đều kết nối trực tiếp vào cùng một mạng cục bộ (LAN) và chia sẻ chung một không gian địa chỉ IP cũng như một miền quảng bá (broadcast domain) duy nhất~\cite{kurose2021computer, tanenbaum2011computer}.
+
+Mô hình mạng phẳng mang lại ưu điểm nổi bật là tính đơn giản trong khâu lắp đặt và sử dụng, người dùng không cần có kiến thức chuyên sâu về kỹ thuật mạng vẫn có thể dễ dàng cho thiết bị mới gia nhập hệ thống. Tuy nhiên, kiến trúc này bộc lộ những hạn chế kỹ thuật cố hữu khi quy mô thiết bị gia tăng:
+\begin{itemize}
+    \item \textbf{Quá tải miền quảng bá:} Trong cùng một miền quảng bá, mọi gói tin quảng bá (ARP request, DHCP discover, gói tin định danh dịch vụ mDNS/SSDP) phát ra từ bất kỳ nút mạng nào đều phải được truyền tải đến tất cả các nút còn lại, gây tiêu tốn tài nguyên xử lý của vi điều khiển trên thiết bị IoT và lãng phí băng thông không dây.
+    \item \textbf{Thiếu cơ chế cách ly tài nguyên:} Mọi nút trong mạng phẳng đều có khả năng nhìn thấy và gửi trực tiếp các gói tin đến bất kỳ nút nào khác ở tầng liên kết dữ liệu mà không chịu sự kiểm soát của router hay tường lửa.
+    \item \textbf{Lan truyền rủi ro an ninh:} Khi một nút mạng có độ bảo mật thấp (chẳng hạn như một camera giá rẻ) bị mã độc xâm nhập, toàn bộ mạng nội bộ bị phơi bày trước các cuộc tấn công nghe lén (sniffing), giả mạo địa chỉ (ARP spoofing) hoặc dò quét cổng dịch vụ nội bộ nhằm tấn công các thiết bị cá nhân nhạy cảm chứa tài khoản ngân hàng và dữ liệu công việc.
+\end{itemize}
+
+\subsection{Đặc thù lưu lượng và giao thức IoT}
+\label{subsec:dac-thu-luu-luong-giao-thuc-iot}
+
+Lưu lượng truyền tải trong hệ sinh thái IoT gia đình có tính đa dạng và bất đối xứng rất cao, phụ thuộc vào bản chất chức năng của từng nhóm thiết bị~\cite{alfuqaha2015internet}:
+\begin{enumerate}
+    \item \textbf{Lưu lượng dạng chu kỳ với kích thước gói tin nhỏ:} Xuất phát từ các cảm biến nhiệt độ, độ ẩm, cảm biến chuyển động hoặc công tắc thông minh. Các thiết bị này định kỳ gửi các bản tin đo đạc có kích thước từ vài chục đến vài trăm byte, đòi hỏi băng thông rất thấp nhưng yêu cầu tiết kiệm năng lượng tối đa.
+    \item \textbf{Lưu lượng đa phương tiện băng thông lớn liên tục:} Xuất phát từ hệ thống camera an ninh giám sát IP độ nét cao (Full HD, 2K hoặc 4K). Dữ liệu video được mã hóa theo chuẩn H.264/H.265 và truyền tải liên tục qua giao thức RTSP (Real-Time Streaming Protocol) hoặc HTTP-FLV/WebRTC. Luồng dữ liệu này yêu cầu băng thông liên tục từ $2\text{ Mbps}$ đến hơn $10\text{ Mbps}$ cho mỗi camera, đồng thời đòi hỏi độ trễ cực thấp và tỷ lệ mất gói gần như bằng không để tránh giật lag hình ảnh.
+\end{enumerate}
+
+Về phương thức truyền thông, hệ sinh thái IoT sử dụng đa dạng các chuẩn vô tuyến và giao thức tầng ứng dụng:
+\begin{itemize}
+    \item \textbf{Các chuẩn kết nối không dây:}
+    \begin{itemize}
+        \item \textbf{Wi-Fi (IEEE 802.11):} Cung cấp băng thông lớn, kết nối trực tiếp vào hạ tầng mạng IP sẵn có nhưng tiêu thụ điện năng tương đối cao, thường áp dụng cho camera an ninh, Smart TV và thiết bị gia dụng cắm nguồn trực tiếp.
+        \item \textbf{Zigbee (IEEE 802.15.4) và Z-Wave:} Hoạt động ở mức tiêu thụ điện năng cực thấp, hỗ trợ mạng hình lưới (mesh topology), thích hợp cho hệ thống cảm biến và công tắc dùng pin thông qua một cổng kết nối trung tâm (hub/gateway).
+        \item \textbf{Bluetooth Low Energy (BLE):} Thích hợp cho các kết nối phạm vi ngắn, cấu hình nhanh thiết bị thông minh thông qua điện thoại.
+    \end{itemize}
+    \item \textbf{Các giao thức truyền tin tầng ứng dụng:}
+    \begin{itemize}
+        \item \textbf{MQTT (Message Queuing Telemetry Transport):} Giao thức truyền tin gọn nhẹ xây dựng trên nền TCP, vận hành theo mô hình Xuất bản / Đăng ký (Publish/Subscribe) thông qua máy chủ môi giới (broker). MQTT giảm thiểu tối đa overhead của tiêu đề gói tin, hỗ trợ ba mức cam kết chất lượng dịch vụ (QoS 0, 1, 2) và tính năng kiểm tra trạng thái hoạt động (Keep-Alive), là lựa chọn tối ưu cho hệ thống nhà thông minh.
+        \item \textbf{HTTP/HTTPS:} Hoạt động theo mô hình Yêu cầu / Đáp ứng (Request/Response) truyền thống dựa trên RESTful API. Mặc dù dễ tích hợp với các dịch vụ đám mây, HTTP có chi phí đóng gói tiêu đề lớn và tiêu hao nhiều năng lượng hơn trên các vi điều khiển nhỏ.
+        \item \textbf{CoAP (Constrained Application Protocol):} Được thiết kế chuyên biệt cho thiết bị bị giới hạn tài nguyên tính toán và bộ nhớ. CoAP vận hành trên nền UDP, sử dụng cơ chế truyền tin hướng thông điệp ngắn gọn và hỗ trợ cả hai mô hình truyền thông tin cậy lẫn không tin cậy.
+    \end{itemize}
+\end{itemize}
+
+\section{Thách thức về hiệu năng và an ninh mạng IoT gia đình}
+\label{sec:thach-thuc-hieu-nang-an-ninh}
+
+\subsection{Vấn đề hiệu năng mạng}
+\label{subsec:van-de-hieu-nang}
+
+Hệ thống mạng gia đình khi triển khai số lượng lớn thiết bị IoT phải đối mặt với các thách thức kỹ thuật nghiêm trọng về mặt hiệu năng:
+\begin{enumerate}
+    \item \textbf{Tắc nghẽn băng thông và suy thoái đường truyền:} Sự xuất hiện đồng thời của nhiều camera an ninh truyền phát liên tục tạo ra tải lưu lượng lớn trên cả hai chiều: cục bộ (đến đầu ghi hình mạng NAS) và đi ra Internet (đến máy chủ đám mây của nhà sản xuất). Tải lưu lượng này dễ dàng lấp đầy dung lượng kênh truyền vô tuyến của điểm truy cập gia đình.
+    \item \textbf{Xung đột tần số và can nhiễu sóng vô tuyến:} Phần lớn các thiết bị IoT giá rẻ chỉ hỗ trợ băng tần $2.4\text{ GHz}$. Băng tần này chỉ có 3 kênh truyền không chồng lấn (kênh 1, 6 và 11). Khi hàng chục cảm biến, camera cùng các thiết bị di động của gia đình và mạng Wi-Fi của các hộ lân cận cùng phát sóng trên băng tần này, hiện tượng can nhiễu kênh (co-channel interference) và xung đột khung truyền tăng vọt, kích hoạt cơ chế lùi thời gian ngẫu nhiên (backoff) của chuẩn CSMA/CA, làm sụt giảm nghiêm trọng hiệu suất truyền dẫn thực tế.
+    \item \textbf{Gia tăng độ trễ và tỷ lệ mất gói:} Độ trễ khứ hồi (RTT -- Round-Trip Time) và biến thiên độ trễ (jitter) tăng mạnh khiến các ứng dụng nhạy cảm với thời gian như hội nghị truyền hình, gọi thoại trực tuyến hoặc xem hình ảnh camera an ninh theo thời gian thực bị giật lag, mất khung hình và suy giảm độ tin cậy.
+\end{enumerate}
+
+\subsection{Rủi ro bảo mật và tấn công mạng}
+\label{subsec:rui-ro-bao-mat}
+
+Bên cạnh bài toán hiệu năng, vấn đề an ninh thông tin trong mạng IoT gia đình là một rủi ro đặc biệt nghiêm trọng do những nguyên nhân sau~\cite{antonakakis2017understanding}:
+\begin{itemize}
+    \item \textbf{Lỗ hổng bảo mật cố hữu của thiết bị giá rẻ:} Nhiều nhà sản xuất thiết bị IoT vì tối ưu giá thành và rút ngắn thời gian ra mắt thị trường đã bỏ qua các tiêu chuẩn an toàn thông tin cơ bản: cài đặt mật khẩu quản trị mặc định dễ đoán (như \texttt{admin/admin}, \texttt{123456}), không mã hóa dữ liệu truyền thông, mở sẵn các dịch vụ quản trị từ xa nguy hiểm (Telnet, UPnP) và không phát hành bản vá cập nhật firmware định kỳ.
+    \item \textbf{Nguy cơ bị biến thành mạng botnet:} Mã độc Mirai và các biến thể hiện đại đã chứng minh khả năng quét tự động toàn bộ không gian địa chỉ IPv4 để chiếm quyền điều khiển hàng triệu camera an ninh và router gia đình, tập hợp chúng thành các mạng máy tính ma (botnet) quy mô lớn để thực hiện tấn công từ chối dịch vụ phân tán (DDoS) làm tê liệt hạ tầng mạng toàn cầu~\cite{antonakakis2017understanding}.
+    \item \textbf{Rò rỉ dữ liệu riêng tư và tấn công nội bộ:} Khi một camera giám sát bị can thiệp trái phép, kẻ tấn công không chỉ có thể xem trộm hình ảnh sinh hoạt riêng tư của gia đình mà còn sử dụng thiết bị này như một điểm tựa (pivot point) để thực hiện các cuộc tấn công nội bộ sang máy tính cá nhân, giải mã gói tin truyền thông và đánh cắp thông tin thẻ tín dụng hoặc tài liệu bí mật.
+\end{itemize}
+
+\section{Các giải pháp tối ưu hóa hiệu năng mạng}
+\label{sec:giai-phap-toi-uu-hieu-nang}
+
+Để khắc phục các nhược điểm của mô hình mạng phẳng, kỹ thuật phân đoạn mạng và điều phối lưu lượng là hai giải pháp kỹ thuật bắt buộc phải được áp dụng đồng bộ~\cite{kurose2021computer, nguyenthuchai2010}.
+
+\subsection{Phân vùng mạng (VLAN và Subnetting)}
+\label{subsec:phan-vung-mang-vlan}
+
+Kỹ thuật mạng cục bộ ảo (VLAN -- Virtual Local Area Network) cho phép phân chia logic một hạ tầng chuyển mạch vật lý thành nhiều mạng cục bộ độc lập ở tầng liên kết dữ liệu (tầng 2) theo tiêu chuẩn IEEE 802.1Q~\cite{ieee8021q2018}. Khi sử dụng VLAN, mỗi phân vùng mạng sở hữu một miền quảng bá riêng biệt. Các khung dữ liệu Ethernet di chuyển qua các liên kết trung kế (Trunk link) giữa router và switch được gắn thêm một trường tiêu đề 802.1Q chứa định danh VLAN ID có độ dài 12 bit (cho phép đánh số từ 1 đến 4094).
+
+Song hành với việc phân chia VLAN ở tầng 2, kỹ thuật chia mạng con (subnetting) ở tầng mạng (tầng 3) phân bổ cho mỗi VLAN một dải địa chỉ IP riêng biệt với mặt nạ mạng con (subnet mask) độc lập~\cite{kurose2021computer, doxuancho2018}. Kỹ thuật này mang lại các lợi ích to lớn:
+\begin{itemize}
+    \item \textbf{Thu hẹp miền quảng bá:} Bão gói tin quảng bá phát ra từ một nhóm thiết bị (như các gói tin mDNS của thiết bị thông minh) bị giới hạn hoàn toàn trong phạm vi VLAN đó, không làm ảnh hưởng đến các máy tính cá nhân ở VLAN khác.
+    \item \textbf{Tăng cường khả năng quản trị và cách ly:} Tạo ranh giới rõ ràng giữa các khu vực chức năng khác nhau, ngăn chặn các luồng dữ liệu trái phép đi trực tiếp giữa các thiết bị mà chưa qua khâu kiểm soát của router.
+    \item \textbf{Tối ưu hóa bảng định tuyến và chuyển mạch:} Hạn chế hiện tượng tràn bảng địa chỉ MAC (MAC flooding) trên thiết bị chuyển mạch.
+\end{itemize}
+
+\subsection{Quản lý chất lượng dịch vụ (QoS)}
+\label{subsec:quan-ly-qos}
+
+Cơ chế quản lý chất lượng dịch vụ (QoS -- Quality of Service) là tập hợp các công nghệ và thuật toán cho phép hệ thống mạng phân loại, đánh dấu và điều phối tài nguyên băng thông cũng như hàng đợi gói tin trên các cổng mạng nhằm đảm bảo hiệu năng cam kết cho các luồng dữ liệu quan trọng~\cite{ciscoqos2014}.
+
+Quy trình quản lý QoS bao gồm ba giai đoạn xử lý cốt lõi:
+\begin{enumerate}
+    \item \textbf{Phân loại và đánh dấu (Classification and Marking):} Nhận diện luồng dữ liệu dựa trên địa chỉ IP nguồn/đích, cổng dịch vụ hoặc giao thức tầng ứng dụng, sau đó đánh dấu mức độ ưu tiên vào trường DSCP (Differentiated Services Code Point, 6 bit trong tiêu đề IPv4/IPv6) hoặc trường CoS (Class of Service, 3 bit trong tiêu đề 802.1Q).
+    \item \textbf{Quản lý tắc nghẽn và cơ chế hàng đợi (Congestion Management):} Khi xảy ra hiện tượng quá tải băng thông trên router biên, các gói tin được đưa vào các hàng đợi riêng biệt tuân theo các giải thuật lập lịch:
+    \begin{itemize}
+        \item \textbf{Priority Queuing (PQ):} Các gói tin trong hàng đợi ưu tiên cao nhất luôn được phục vụ trước, phù hợp cho các gói tin thoại và video thời gian thực.
+        \item \textbf{Weighted Fair Queuing (WFQ):} Phân chia tỷ lệ băng thông công bằng giữa các luồng lưu lượng khác nhau dựa trên trọng số được gán.
+        \item \textbf{Class-Based Weighted Fair Queuing (CBWFQ):} Cho phép người quản trị định nghĩa các lớp lưu lượng cụ thể và cam kết băng thông tối thiểu cho từng lớp.
+    \end{itemize}
+    \item \textbf{Điều hòa lưu lượng (Traffic Shaping and Policing):} Kiểm soát và giới hạn tốc độ truyền tối đa của các luồng lưu lượng tải nền để tránh tình trạng chiếm dụng toàn bộ đường truyền ra Internet.
+\end{enumerate}
+
+Đối với mạng gia đình có camera giám sát, QoS đóng vai trò quyết định trong việc bảo đảm luồng video giám sát không bị suy hao chất lượng khi có thiết bị khác tải tệp dung lượng lớn hoặc xem phim độ nét cao.
+
+\section{Các giải pháp bảo mật và kiểm soát truy cập}
+\label{sec:giai-phap-bao-mat-kiem-soat}
+
+\subsection{Tường lửa và bộ lọc gói tin (Firewall / ACL)}
+\label{subsec:tuong-lua-va-acl}
+
+Tường lửa là thành phần phòng thủ trọng yếu đóng vai trò người gác cổng giữa các phân vùng mạng khác nhau và giữa mạng nội bộ với mạng Internet bên ngoài~\cite{kurose2021computer}. Trong kiến trúc mạng phân đoạn, tường lửa kiểm soát trạng thái (Stateful Inspection Firewall) được triển khai trên router biên để giám sát luồng lưu lượng di chuyển giữa các VLAN (Inter-VLAN routing).
+
+Nguyên lý hoạt động dựa trên danh sách kiểm soát truy cập (ACL -- Access Control List):
+\begin{itemize}
+    \item ACL bao gồm tập hợp các quy tắc (rules) được đánh giá theo thứ tự từ trên xuống dưới. Mỗi quy tắc chỉ định hành động cho phép (Permit) hoặc loại bỏ (Deny/Drop) đối với gói tin dựa trên bộ năm thông số (5-tuple): Địa chỉ IP nguồn, Địa chỉ IP đích, Cổng nguồn, Cổng đích và Giao thức truyền vận (TCP, UDP, ICMP).
+    \item \textbf{Nguyên tắc Mặc định Từ chối (Default Deny):} Đây là chuẩn mực vàng trong bảo mật mạng. Bất kỳ gói tin nào không khớp với các quy tắc cho phép tường minh đều sẽ bị hủy bỏ tự động tại cuối danh sách quy tắc.
+    \item \textbf{Theo dõi trạng thái kết nối:} Tường lửa lưu giữ bảng trạng thái phiên (State Table) để tự động cho phép các gói tin phản hồi của các kết nối hợp lệ do phía tin cậy chủ động khởi tạo mà không cần phải mở rộng cổng dịch vụ một cách tùy tiện.
+\end{itemize}
+
+\subsection{Giao thức bảo mật không dây}
+\label{subsec:giao-thuc-bao-mat-khong-day}
+
+Hầu hết các thiết bị IoT gia đình giao tiếp thông qua sóng Wi-Fi, do đó chuẩn bảo mật vô tuyến là tuyến phòng thủ đầu tiên ngăn chặn sự tiếp cận của kẻ tấn công~\cite{wpa3spec2020}. Chuẩn bảo mật WPA2-PSK (Pre-Shared Key) vốn phổ biến trong suốt hai thập kỷ qua đã bộc lộ những điểm yếu chí mạng:
+\begin{itemize}
+    \item Nguy cơ tấn công dò mật khẩu ngoại tuyến (Offline Dictionary Attack): Kẻ tấn công có thể bắt gói tin trong quá trình bắt tay 4 bước (4-Way Handshake) giữa máy trạm và AP, sau đó thực hiện dò vét mật khẩu bằng máy tính cấu hình cao mà không cần duy trì kết nối với mạng mục tiêu.
+    \item Nguy cơ tấn công cài đặt lại khóa (KRACK -- Key Reinstallation Attacks): Khai thác lỗ hổng trong quá trình trao đổi khóa để giải mã lưu lượng không dây.
+\end{itemize}
+
+Để giải quyết các rủi ro trên, chuẩn bảo mật WPA3 (Wi-Fi Protected Access 3) đã được tổ chức Wi-Fi Alliance chuẩn hóa với các cải tiến đột phá~\cite{wpa3spec2020}:
+\begin{itemize}
+    \item \textbf{Giao thức SAE (Simultaneous Authentication of Equals):} Thay thế cơ chế bắt tay 4 bước cũ bằng thuật toán trao đổi khóa Dragonfly. Giao thức này vô hiệu hóa hoàn toàn phương thức tấn công từ điển ngoại tuyến, kẻ tấn công chỉ có thể thử từng mật khẩu trực tiếp trên thiết bị phát sóng, giúp hệ thống dễ dàng phát hiện và khóa địa chỉ truy vấn bất thường.
+    \item \textbf{Bảo mật chuyển tiếp (Forward Secrecy):} Ngay cả khi mật khẩu Wi-Fi bị lộ trong tương lai, kẻ tấn công cũng không thể giải mã các phiên truyền thông dữ liệu đã được ghi lại trong quá khứ.
+    \item \textbf{Bảo vệ khung quản lý (PMF -- Protected Management Frames):} Ngăn chặn các cuộc tấn công ngắt kết nối giả mạo (Deauthentication Attack), bảo đảm kết nối của camera và cảm biến luôn liên tục và tin cậy.
+\end{itemize}

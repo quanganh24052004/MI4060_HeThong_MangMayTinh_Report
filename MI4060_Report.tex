@@ -1,0 +1,60 @@
+%!TEX program = xelatex
+%!TEX encoding = UTF-8 Unicode
+% ==============================================================================
+% CHỌN CHẾ ĐỘ IN ẤN: 1 MẶT (ONESIDE) HOẶC 2 MẶT (TWOSIDE)
+% ==============================================================================
+% Chế độ 1 mặt (oneside): Mặc định cho báo cáo đồ án, nộp file PDF
+\documentclass[a4paper, 12pt, oneside]{book}
+
+% Chế độ 2 mặt (twoside): Mở comment dòng dưới và đóng comment dòng trên khi in ấn 2 mặt
+%\documentclass[a4paper, 12pt, twoside]{book}
+% ==============================================================================
+
+\input{setup/preamble.tex}
+\input{setup/macros.tex}
+
+\begin{document}
+	
+\input{frontmatter/titlepage.tex}
+\input{frontmatter/supervisor_remark.tex}
+\input{frontmatter/acknowledgement.tex}
+\input{frontmatter/abstract.tex}
+
+\tableofcontents % Là xuất hiện mục lục.
+\pagestyle{myheadings}
+\newpage
+
+%\addcontentsline{toc}{chapter}{Danh sách bảng}
+\thispagestyle{empty}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\input{frontmatter/abbreviations.tex}
+
+\newpage
+\listoftables
+\addcontentsline{toc}{chapter}{\bfseries Danh sách bảng}
+%\thispagestyle{empty}
+
+\newpage
+\renewcommand{\listfigurename}{Danh sách hình ảnh}
+\listoffigures
+\addcontentsline{toc}{chapter}{\bfseries Danh sách hình ảnh}
+
+\input{chapters/introduction.tex}
+
+\input{chapters/chapter1.tex}
+
+\input{chapters/chapter2.tex}
+
+%\input{chapters/chapter3.tex} % Đã tích hợp đầy đủ vào Chương 2 theo đề cương chi tiết
+
+\input{chapters/conclusion.tex}
+
+\input{backmatter/references.tex}
+
+%\input{backmatter/related_works.tex}
+
+%\includepdf[pages=-, scale=0.95, pagecommand={\thispagestyle{fancy}}]{paper.pdf} % Chèn toàn bộ file pdf
+
+\end{document}

@@ -1,0 +1,40 @@
+\chapter*{Mở đầu}
+\addcontentsline{toc}{chapter}{\bfseries Mở đầu}
+\large
+\setlist{nosep}
+
+Trong kỷ nguyên số hóa hiện nay, cuộc cách mạng công nghệ \textbf{Internet of Things (IoT)} đã mở ra kỷ nguyên phát triển vượt bậc cho hệ sinh thái nhà thông minh. Các thiết bị gia dụng kết nối mạng, bóng đèn thông minh, cảm biến môi trường và đặc biệt là hệ thống camera an ninh giám sát độ phân giải cao đã trở thành thành phần không thể thiếu trong nhiều hộ gia đình. Theo các nghiên cứu thị trường, số lượng thiết bị thông minh trung bình trong một hộ gia đình hiện đại không ngừng tăng trưởng, kéo theo sự bùng nổ về khối lượng dữ liệu trao đổi trong mạng cục bộ nội bộ cũng như lưu lượng truyền tải ra Internet.
+
+Tuy nhiên, hạ tầng mạng tại hầu hết các hộ gia đình hiện nay vẫn duy trì kiến trúc \textbf{mạng phẳng} truyền thống. Trong mô hình này, mọi thiết bị từ máy tính cá nhân, điện thoại thông minh, thiết bị lưu trữ gắn mạng cho tới các cảm biến giá rẻ và camera an ninh đều kết nối chung vào một điểm truy cập không dây và cùng chia sẻ một miền quảng bá duy nhất. Kiến trúc này bộc lộ hai bất cập cốt lõi:
+\begin{enumerate}
+    \item \textbf{Suy giảm hiệu năng mạng:} Sự cạnh tranh băng thông giữa các luồng truyền tải video thời gian thực từ camera an ninh với các lưu lượng làm việc, học tập và giải trí của người dùng dẫn đến hiện tượng tắc nghẽn, tăng độ trễ và biến thiên độ trễ, làm giảm chất lượng trải nghiệm dịch vụ.
+    \item \textbf{Nguy cơ mất an toàn thông tin:} Các thiết bị IoT thường bị hạn chế về năng lực tính toán phần cứng, sử dụng firmware ít được vá lỗi và tồn tại mật khẩu mặc định yếu. Khi một thiết bị IoT bị mã độc xâm nhập (điển hình như các biến thể mạng botnet Mirai), kẻ tấn công có thể dễ dàng dò quét và leo thang đặc quyền sang các thiết bị cá nhân nhạy cảm trong cùng mạng nội bộ.
+\end{enumerate}
+
+Xuất phát từ thực tiễn trên, báo cáo môn học \textbf{Hệ thống và Mạng máy tính (MI4060)} thực hiện đề tài: \textbf{"Nghiên cứu, thiết kế và triển khai hệ thống mạng phân đoạn nhằm tối ưu hiệu năng và bảo mật cho thiết bị IoT trong gia đình"}. Đề tài tập trung giải quyết bài toán tối ưu hóa tài nguyên mạng và tăng cường an ninh thông qua việc áp dụng kỹ thuật \textbf{mạng cục bộ ảo (VLAN)}, cơ chế quản lý \textbf{chất lượng dịch vụ (QoS)}, phân vùng \textbf{tường lửa} với \textbf{danh sách kiểm soát truy cập (ACL)} và tiêu chuẩn bảo mật không dây hiện đại.
+
+\section*{Mục tiêu của đề tài}
+\begin{itemize}
+    \item Hệ thống hóa cơ sở lý thuyết về kiến trúc mạng gia đình, đặc thù giao thức IoT, nguyên lý hoạt động của VLAN, QoS và tường lửa phân vùng.
+    \item Khảo sát thực tế nhu cầu thiết bị và phân tích đặc tả bài toán an ninh, hiệu năng trong môi trường hộ gia đình.
+    \item Thiết kế sơ đồ kiến trúc mạng phân tầng (Topology) với ba phân vùng mạng cô lập: Vùng thiết bị tin cậy (VLAN 10), Vùng thiết bị IoT (VLAN 20) và Vùng khách (VLAN 30).
+    \item Xây dựng chính sách QoS ưu tiên luồng dữ liệu quan trọng và thiết lập quy tắc tường lửa liên VLAN theo nguyên tắc mặc định từ chối.
+    \item Cài đặt môi trường thử nghiệm thực tế (testbed), tiến hành đo đạc các chỉ số hiệu năng (RTT, Throughput, Packet Loss) và kiểm tra khả năng phòng chống xâm nhập thông qua các bài thử nghiệm quét cổng.
+\end{itemize}
+
+\section*{Đối tượng và phạm vi nghiên cứu}
+\begin{itemize}
+    \item \textbf{Đối tượng nghiên cứu:} Hạ tầng mạng máy tính hộ gia đình, các thiết bị kết nối IoT và camera an ninh, thiết bị chuyển mạch quản lý (Managed Switch), router biên và các giao thức truyền thông mạng (IEEE 802.1Q, IEEE 802.11ax/WPA3, TCP/IP, MQTT, RTSP).
+    \item \textbf{Phạm vi nghiên cứu:} Đề tài tập trung vào việc thiết kế và đánh giá thực nghiệm kiến trúc mạng phân đoạn trên môi trường testbed phần cứng và mô phỏng mạng cho hộ gia đình có nhu cầu sử dụng camera giám sát liên tục và thiết bị thông minh.
+\end{itemize}
+
+\section*{Phương pháp nghiên cứu}
+Báo cáo kết hợp phương pháp nghiên cứu lý thuyết chuyên sâu trong lĩnh vực mạng máy tính với phương pháp thực nghiệm đo kiểm định lượng trên hệ thống mạng thử nghiệm thực tế, đối sánh trực tiếp giữa mô hình mạng phẳng truyền thống và mô hình phân vùng tối ưu hóa đề xuất.
+
+\section*{Bố cục của báo cáo}
+Nội dung báo cáo được tổ chức thành 2 chương chính bám sát đề cương chi tiết:
+\begin{itemize}
+    \item \textbf{Chương 1: Cơ sở lý thuyết} -- Trình bày tổng quan về hệ sinh thái IoT gia đình, hạ tầng mạng, các thách thức về hiệu năng và an ninh mạng, cùng các giải pháp kỹ thuật cốt lõi gồm phân vùng mạng (VLAN), quản lý chất lượng dịch vụ (QoS), tường lửa và bảo mật không dây.
+    \item \textbf{Chương 2: Phân tích thiết kế, cài đặt và đánh giá thực nghiệm} -- Trình bày chi tiết quá trình khảo sát đặc tả bài toán, thiết kế kiến trúc topology mạng ba phân vùng, xây dựng mô hình thử nghiệm testbed, cấu hình hệ thống thực tế và phân tích kết quả đo kiểm hiệu năng cũng như kiểm thử an toàn bảo mật.
+    \item \textbf{Kết luận} -- Đánh giá tổng kết các kết quả đạt được, chỉ ra những hạn chế hiện tại và định hướng phát triển mở rộng trong tương lai.
+\end{itemize}
