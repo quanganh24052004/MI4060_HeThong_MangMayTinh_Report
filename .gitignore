@@ -15,6 +15,7 @@
 *.out
 *.run.xml
 *.synctex.gz
+*.synctex*
 *.toc
 *.nav
 *.snm
